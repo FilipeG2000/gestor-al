@@ -1,0 +1,13 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/gestoral
+    username: gestoral
+    password: gestoral
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true

@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:16
+    container_name: gestor-al-db
+    environment:
+      POSTGRES_DB: gestoral
+      POSTGRES_USER: gestoral
+      POSTGRES_PASSWORD: gestoral
+    ports:
+      - "5432:5432"
+    volumes:
+      - gestoral_pgdata:/var/lib/postgresql/data
+
+volumes:
+  gestoral_pgdata:
