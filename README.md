@@ -1,32 +1,44 @@
 # Gestor de Alojamento Local (gestor-al)
 
-Sistema de gestão para alojamentos locais desenvolvido em **Java com Spring Boot**.
-Este projeto faz parte do meu portefólio para demonstrar competências em desenvolvimento backend, modelação de dados e regras de negócio.
+Sistema de gestão para alojamentos locais desenvolvido em **Java com Spring Boot**.  
+Este projeto faz parte do meu portefólio para demonstrar competências em desenvolvimento backend, modelação de dados e implementação de regras de negócio reais.
 
 ---
 
 ## Funcionalidades atuais
 
-* CRUD de propriedades (Alojamentos)
-* API REST com Spring Boot
-* Documentação automática com Swagger
-* Persistência em PostgreSQL
-* Migrations de base de dados com Flyway
-* Docker para base de dados
+### Propriedades
+- CRUD de propriedades (Alojamentos)
+
+### Reservas
+- Criação de reservas
+- Validação de conflitos de datas
+- Estados de reserva (CONFIRMED / CANCELLED)
+
+### Bloqueios
+- Bloqueio manual de datas
+- Impede criação de reservas em períodos indisponíveis
+
+### Infraestrutura
+- API REST com Spring Boot
+- Documentação automática com Swagger
+- Persistência em PostgreSQL
+- Migrations com Flyway
+- Base de dados em Docker
 
 ---
 
 ## Stack tecnológica
 
-* Java 17
-* Spring Boot
-* Spring Data JPA
-* Spring Security
-* PostgreSQL
-* Flyway
-* Docker
-* Maven
-* Swagger (Springdoc OpenAPI)
+- Java 17
+- Spring Boot
+- Spring Data JPA
+- Spring Security
+- PostgreSQL
+- Flyway
+- Docker
+- Maven
+- Swagger (Springdoc OpenAPI)
 
 ---
 
@@ -39,7 +51,7 @@ git clone https://github.com/FilipeG2000/gestor-al.git
 cd gestor-al
 ```
 
-### 2. Subir a base de dados com Docker
+### 2. Subir a base de dados
 
 ```bash
 docker compose up -d
@@ -69,7 +81,7 @@ Swagger UI:
 http://localhost:8080/swagger-ui/index.html
 ```
 
-Health check:
+Health Check:
 
 ```
 http://localhost:8080/api/health
@@ -86,22 +98,30 @@ src/main/java/pt/filipe/gestor_al
  │
  ├── domain
  │    └── model
- │         └── Property.java
+ │         ├── Property.java
+ │         ├── Booking.java
+ │         └── Block.java
  │
  ├── repository
- │    └── PropertyRepository.java
+ │    ├── PropertyRepository.java
+ │    ├── BookingRepository.java
+ │    └── BlockRepository.java
  │
  ├── service
- │    └── PropertyService.java
+ │    ├── PropertyService.java
+ │    ├── BookingService.java
+ │    └── BlockService.java
  │
  ├── web
  │    ├── controller
- │    │     └── PropertyController.java
+ │    │     ├── PropertyController.java
+ │    │     ├── BookingController.java
+ │    │     └── BlockController.java
  │    │
  │    ├── dto
- │    │     ├── PropertyCreateRequest.java
- │    │     ├── PropertyResponse.java
- │    │     └── PropertyUpdateRequest.java
+ │    │     ├── property
+ │    │     ├── booking
+ │    │     └── block
  │    │
  │    └── HealthController.java
  │
@@ -112,12 +132,12 @@ src/main/java/pt/filipe/gestor_al
 
 ## Roadmap (próximas funcionalidades)
 
-* Sistema de reservas (Bookings)
-* Bloqueios de datas
-* Gestão de tarefas de limpeza
-* Dashboard com métricas
-* Autenticação de utilizadores
-* Integração com plataformas (Airbnb/Booking)
+- Verificação de disponibilidade automática
+- Dashboard de ocupação
+- Gestão de tarefas de limpeza
+- Autenticação de utilizadores
+- Multi-propriedade
+- Integração com plataformas externas (Airbnb / Booking)
 
 ---
 
@@ -125,13 +145,14 @@ src/main/java/pt/filipe/gestor_al
 
 Este projeto foi criado para:
 
-* Consolidar conhecimentos em **Engenharia Informática**
-* Demonstrar competências em **desenvolvimento backend**
-* Servir como base para evolução durante o mestrado em **Gestão**
+- Consolidar conhecimentos em Engenharia Informática
+- Demonstrar competências em backend real-world
+- Implementar lógica de negócio típica de sistemas de reservas
+- Evoluir como base para produtos SaaS futuros
 
 ---
 
 ## Autor
 
-**Filipe Gonçalves**
-GitHub: [https://github.com/FilipeG2000](https://github.com/FilipeG2000)
+**Filipe Gonçalves**  
+GitHub: https://github.com/FilipeG2000
