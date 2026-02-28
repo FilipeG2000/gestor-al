@@ -26,4 +26,11 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     );
 
     List<Booking> findByPropertyIdOrderByCheckInAsc(Long propertyId);
+
+    boolean existsByPropertyIdAndStatusAndCheckInLessThanAndCheckOutGreaterThan(
+            Long propertyId,
+            BookingStatus status,
+            LocalDate checkOut,
+            LocalDate checkIn
+    );
 }

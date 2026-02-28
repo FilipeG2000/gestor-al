@@ -23,4 +23,10 @@ public interface BlockRepository extends JpaRepository<Block, Long> {
     );
 
     List<Block> findByPropertyIdOrderByStartDateAsc(Long propertyId);
+
+    boolean existsByPropertyIdAndStartDateLessThanAndEndDateGreaterThan(
+            Long propertyId,
+            LocalDate endDate,
+            LocalDate startDate
+    );
 }
