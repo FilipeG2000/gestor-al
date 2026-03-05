@@ -1,85 +1,159 @@
 # Gestor de Alojamento Local (gestor-al)
 
-Sistema de gestão para alojamentos locais desenvolvido em **Java com Spring Boot**.  
-Este projeto faz parte do meu portefólio para demonstrar competências em desenvolvimento backend, modelação de dados e implementação de regras de negócio reais.
+Sistema de gestão para **Alojamentos Locais (AL)** desenvolvido como projeto **full-stack**.
+
+Este projeto simula um sistema real de gestão de propriedades e reservas, semelhante aos utilizados por gestores de alojamento local e pequenas unidades turísticas.
+
+Foi desenvolvido como parte do meu **portefólio técnico**, com foco em:
+
+- Desenvolvimento **Backend com Java e Spring Boot**
+- Construção de **APIs REST**
+- Modelação de dados e regras de negócio
+- Integração **Frontend React + Backend**
+- Estruturação de um projeto **Fullstack moderno**
 
 ---
 
-## Funcionalidades atuais
+# Arquitetura do Projeto
 
-### Propriedades
-- CRUD de propriedades (Alojamentos)
+O projeto está organizado como um **monorepo fullstack**, contendo duas aplicações separadas.
 
-### Reservas
-- Criação de reservas
-- Validação de conflitos de datas
-- Estados de reserva (CONFIRMED / CANCELLED)
+```
+gestor-al
+│
+├── backend
+│   └── API REST em Spring Boot
+│
+├── frontend
+│   └── Interface Web em React + TypeScript
+│
+└── README.md
+```
 
-### Bloqueios
-- Bloqueio manual de datas
-- Impede criação de reservas em períodos indisponíveis
+## Backend
 
-### Disponibilidade
-- Verificação automática de disponibilidade
-- Considera:
-  - Reservas existentes
-  - Bloqueios manuais
+Responsável por:
 
-### Infraestrutura
-- API REST com Spring Boot
-- Documentação automática com Swagger
-- Persistência em PostgreSQL
-- Migrations com Flyway
-- Base de dados em Docker
+- Gestão de propriedades
+- Gestão de reservas
+- Gestão de bloqueios de datas
+- Verificação de disponibilidade
+- Regras de negócio
+- Persistência em base de dados
+
+## Frontend
+
+Responsável por:
+
+- Interface do utilizador
+- Consumo da API
+- Visualização e gestão de propriedades e reservas
 
 ---
 
-## Stack tecnológica
+# Funcionalidades atuais
+
+## Propriedades
+
+- Criar propriedades
+- Listar propriedades
+- Atualizar propriedades
+- Apagar propriedades
+
+## Reservas
+
+- Criar reservas
+- Listar reservas por propriedade
+- Validação automática de conflitos de datas
+- Estados de reserva:
+  - `CONFIRMED`
+  - `CANCELLED`
+
+## Bloqueios de datas
+
+- Criar bloqueios manuais
+- Impedir reservas em períodos indisponíveis
+
+## Verificação de disponibilidade
+
+Sistema automático que valida se um período está disponível considerando:
+
+- Reservas existentes
+- Bloqueios manuais
+
+---
+
+# Stack Tecnológica
+
+## Backend
 
 - Java 17
 - Spring Boot
 - Spring Data JPA
 - Spring Security
 - PostgreSQL
-- Flyway
-- Docker
+- Flyway (Database migrations)
+- Swagger / OpenAPI
 - Maven
-- Swagger (Springdoc OpenAPI)
+- Docker
+
+## Frontend
+
+- React
+- TypeScript
+- Vite
+- Fetch API
+- CSS
 
 ---
 
-## Como correr o projeto
+# Como executar o projeto
 
-### 1. Clonar o repositório
+## 1. Clonar o repositório
 
 ```bash
 git clone https://github.com/FilipeG2000/gestor-al.git
 cd gestor-al
 ```
 
-### 2. Subir a base de dados
+---
+
+# Backend
+
+## 2. Subir a base de dados
+
+Dentro da pasta backend:
 
 ```bash
+cd backend
 docker compose up -d
 ```
 
-### 3. Arrancar a aplicação
+---
 
-Linux/Mac:
+## 3. Arrancar a API
+
+Linux / Mac
 
 ```bash
 ./mvnw spring-boot:run
 ```
 
-Windows:
+Windows
 
 ```bash
 mvnw.cmd spring-boot:run
 ```
 
+A API ficará disponível em:
+
+```
+http://localhost:8080
+```
+
 ---
 
-## Aceder à API
+# Documentação da API
 
 Swagger UI:
 
@@ -87,7 +161,7 @@ Swagger UI:
 http://localhost:8080/swagger-ui/index.html
 ```
 
-Health Check:
+Health check:
 
 ```
 http://localhost:8080/api/health
@@ -100,42 +174,47 @@ http://localhost:8080/api/health
 ## Propriedades
 
 ### Criar propriedade
+
 ```
 POST /api/properties
 ```
-Cria um novo alojamento.
 
 ### Listar propriedades
+
 ```
 GET /api/properties
 ```
-Retorna todas as propriedades.
 
 ### Obter propriedade por ID
+
 ```
 GET /api/properties/{id}
 ```
 
 ### Atualizar propriedade
+
 ```
 PUT /api/properties/{id}
 ```
 
 ### Apagar propriedade
+
 ```
 DELETE /api/properties/{id}
 ```
 
 ---
 
-## Reservas
+# Reservas
 
 ### Criar reserva
+
 ```
 POST /api/bookings
 ```
 
 Exemplo:
+
 ```json
 {
   "propertyId": 4,
@@ -146,28 +225,30 @@ Exemplo:
 }
 ```
 
-Valida automaticamente:
-- Datas válidas
-- Conflitos com outras reservas
-- Conflitos com bloqueios
+O sistema valida automaticamente:
 
----
+- datas válidas
+- conflitos com outras reservas
+- conflitos com bloqueios
 
 ### Listar reservas por propriedade
+
 ```
 GET /api/bookings?propertyId=4
 ```
 
 ---
 
-## Bloqueios
+# Bloqueios
 
 ### Criar bloqueio
+
 ```
 POST /api/blocks
 ```
 
 Exemplo:
+
 ```json
 {
   "propertyId": 4,
@@ -177,25 +258,30 @@ Exemplo:
 }
 ```
 
-Impede reservas nesse período.
-
----
-
 ### Listar bloqueios
+
 ```
 GET /api/blocks?propertyId=4
 ```
 
 ---
 
-## Disponibilidade
+# Disponibilidade
 
 ### Verificar disponibilidade
+
 ```
-GET /api/availability?propertyId=4&from=2026-03-01&to=2026-03-05
+GET /api/availability
+```
+
+Exemplo:
+
+```
+/api/availability?propertyId=4&from=2026-03-01&to=2026-03-05
 ```
 
 Resposta:
+
 ```json
 {
   "propertyId": 4,
@@ -206,21 +292,21 @@ Resposta:
 }
 ```
 
-Possíveis razões:
+Possíveis resultados:
 
 | Reason | Significado |
-|--------|------------|
-| AVAILABLE | Intervalo livre |
-| BOOKING_CONFLICT | Sobreposição com reserva |
-| BLOCK_CONFLICT | Sobreposição com bloqueio |
-| INVALID_RANGE | Datas inválidas |
+|------|------|
+| AVAILABLE | Intervalo disponível |
+| BOOKING_CONFLICT | Conflito com reserva |
+| BLOCK_CONFLICT | Conflito com bloqueio |
+| INVALID_RANGE | Intervalo inválido |
 
 ---
 
-## Estrutura do projeto
+# Estrutura do Backend
 
 ```
-src/main/java/pt/filipe/gestor_al
+backend/src/main/java/pt/filipe/gestor_al
  ├── config
  │    └── SecurityConfig.java
  │
@@ -228,6 +314,7 @@ src/main/java/pt/filipe/gestor_al
  │    └── model
  │         ├── Property.java
  │         ├── Booking.java
+ │         ├── BookingStatus.java
  │         └── Block.java
  │
  ├── repository
@@ -261,29 +348,55 @@ src/main/java/pt/filipe/gestor_al
 
 ---
 
-## Roadmap (próximas funcionalidades)
+# Frontend
+
+A aplicação frontend está localizada na pasta:
+
+```
+frontend/
+```
+
+Tecnologias utilizadas:
+
+- React
+- TypeScript
+- Vite
+
+O frontend comunica com a API através de chamadas HTTP para:
+
+```
+http://localhost:8080/api
+```
+
+---
+
+# Roadmap (próximas funcionalidades)
 
 - Dashboard de ocupação
 - Gestão de tarefas de limpeza
-- Autenticação de utilizadores
+- Sistema de utilizadores
+- Autenticação e autorização
 - Multi-propriedade
+- Calendário visual de reservas
 - Integração com plataformas externas (Airbnb / Booking)
-- Frontend em React
 
 ---
 
-## Objetivo do projeto
+# Objetivo do projeto
 
-Este projeto foi criado para:
+Este projeto foi desenvolvido para:
 
-- Consolidar conhecimentos em Engenharia Informática
-- Demonstrar competências em backend real-world
-- Implementar lógica de negócio típica de sistemas de reservas
-- Evoluir como base para produtos SaaS futuros
+- Consolidar conhecimentos em **Engenharia Informática**
+- Demonstrar competências em **desenvolvimento backend**
+- Construir uma aplicação **fullstack moderna**
+- Simular um sistema real de gestão de reservas
+- Servir como base para futuros projetos **SaaS**
 
 ---
 
-## Autor
+# Autor
 
-**Filipe Gonçalves**  
-GitHub: https://github.com/FilipeG2000
+**Filipe Gonçalves**
+
+GitHub  
+https://github.com/FilipeG2000
