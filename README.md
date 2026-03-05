@@ -54,14 +54,12 @@ Responsável por:
 # Funcionalidades atuais
 
 ## Propriedades
-
 - Criar propriedades
 - Listar propriedades
 - Atualizar propriedades
 - Apagar propriedades
 
 ## Reservas
-
 - Criar reservas
 - Listar reservas por propriedade
 - Validação automática de conflitos de datas
@@ -70,12 +68,10 @@ Responsável por:
   - `CANCELLED`
 
 ## Bloqueios de datas
-
 - Criar bloqueios manuais
 - Impedir reservas em períodos indisponíveis
 
 ## Verificação de disponibilidade
-
 Sistema automático que valida se um período está disponível considerando:
 
 - Reservas existentes
@@ -86,7 +82,6 @@ Sistema automático que valida se um período está disponível considerando:
 # Stack Tecnológica
 
 ## Backend
-
 - Java 17
 - Spring Boot
 - Spring Data JPA
@@ -98,7 +93,6 @@ Sistema automático que valida se um período está disponível considerando:
 - Docker
 
 ## Frontend
-
 - React
 - TypeScript
 - Vite
@@ -174,31 +168,26 @@ http://localhost:8080/api/health
 ## Propriedades
 
 ### Criar propriedade
-
 ```
 POST /api/properties
 ```
 
 ### Listar propriedades
-
 ```
 GET /api/properties
 ```
 
 ### Obter propriedade por ID
-
 ```
 GET /api/properties/{id}
 ```
 
 ### Atualizar propriedade
-
 ```
 PUT /api/properties/{id}
 ```
 
 ### Apagar propriedade
-
 ```
 DELETE /api/properties/{id}
 ```
@@ -208,7 +197,6 @@ DELETE /api/properties/{id}
 # Reservas
 
 ### Criar reserva
-
 ```
 POST /api/bookings
 ```
@@ -232,7 +220,6 @@ O sistema valida automaticamente:
 - conflitos com bloqueios
 
 ### Listar reservas por propriedade
-
 ```
 GET /api/bookings?propertyId=4
 ```
@@ -242,7 +229,6 @@ GET /api/bookings?propertyId=4
 # Bloqueios
 
 ### Criar bloqueio
-
 ```
 POST /api/blocks
 ```
@@ -259,7 +245,6 @@ Exemplo:
 ```
 
 ### Listar bloqueios
-
 ```
 GET /api/blocks?propertyId=4
 ```
@@ -269,7 +254,6 @@ GET /api/blocks?propertyId=4
 # Disponibilidade
 
 ### Verificar disponibilidade
-
 ```
 GET /api/availability
 ```
@@ -356,17 +340,116 @@ A aplicação frontend está localizada na pasta:
 frontend/
 ```
 
+O frontend foi desenvolvido com **React + TypeScript** e comunica diretamente com a API backend.
+
 Tecnologias utilizadas:
 
 - React
 - TypeScript
 - Vite
+- Fetch API
+- CSS
 
-O frontend comunica com a API através de chamadas HTTP para:
+---
+
+# Como correr o frontend
+
+Ir para a pasta frontend:
+
+```bash
+cd frontend
+```
+
+Instalar dependências:
+
+```bash
+npm install
+```
+
+Arrancar aplicação:
+
+```bash
+npm run dev
+```
+
+A aplicação ficará disponível em:
+
+```
+http://localhost:5173
+```
+
+---
+
+# Comunicação com o Backend
+
+O frontend comunica com o backend através da API:
 
 ```
 http://localhost:8080/api
 ```
+
+Exemplo de chamada:
+
+```
+GET /api/properties
+```
+
+Esta chamada retorna a lista de propriedades registadas no sistema.
+
+---
+
+# Estrutura do Frontend
+
+```
+frontend/src
+│
+├── lib
+│   └── api.ts
+│
+├── pages
+│   ├── App.tsx
+│   ├── PropertiesPage.tsx
+│   ├── BookingPage.tsx
+│   └── AvailabilityPage.tsx
+│
+├── types.ts
+│
+├── main.tsx
+└── index.css
+```
+
+## Descrição
+
+**api.ts**
+
+Contém funções responsáveis por comunicar com a API backend.
+
+**PropertiesPage**
+
+Página responsável por listar propriedades.
+
+**BookingPage**
+
+Página para criação de reservas.
+
+**AvailabilityPage**
+
+Página para verificação de disponibilidade.
+
+**types.ts**
+
+Define os tipos TypeScript utilizados na aplicação.
+
+---
+
+# Estado atual do frontend
+
+O frontend encontra-se em fase inicial e irá evoluir progressivamente para incluir:
+
+- criação de propriedades
+- gestão de reservas
+- calendário visual de disponibilidade
+- dashboard de ocupação
 
 ---
 
