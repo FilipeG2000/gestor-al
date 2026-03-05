@@ -22,8 +22,8 @@ Este projeto faz parte do meu portefólio para demonstrar competências em desen
 ### Disponibilidade
 - Verificação automática de disponibilidade
 - Considera:
-    - Reservas existentes
-    - Bloqueios manuais
+  - Reservas existentes
+  - Bloqueios manuais
 
 ### Infraestrutura
 - API REST com Spring Boot
