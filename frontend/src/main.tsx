@@ -1,23 +1,36 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import "./index.css";
+
 import App from "./pages/App";
 import PropertiesPage from "./pages/PropertiesPage";
 import BookingPage from "./pages/BookingPage";
 import AvailabilityPage from "./pages/AvailabilityPage";
-import "./index.css";
+
+const router = createBrowserRouter([
+    {
+        path: "/",
+        element: <App />,
+        children: [
+            {
+                path: "properties",
+                element: <PropertiesPage />,
+            },
+            {
+                path: "bookings",
+                element: <BookingPage />,
+            },
+            {
+                path: "availability",
+                element: <AvailabilityPage />,
+            },
+        ],
+    },
+]);
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
     <React.StrictMode>
-        <BrowserRouter>
-            <Routes>
-                <Route path="/" element={<App />}>
-                    <Route index element={<Navigate to="/properties" replace />} />
-                    <Route path="properties" element={<PropertiesPage />} />
-                    <Route path="bookings" element={<BookingPage />} />
-                    <Route path="availability" element={<AvailabilityPage />} />
-                </Route>
-            </Routes>
-        </BrowserRouter>
+        <RouterProvider router={router} />
     </React.StrictMode>
 );
