@@ -84,23 +84,35 @@ Sistema automático que valida se um período está disponível considerando:
 
 ---
 
-# Estado atual do frontend
+# Estado atual do projeto
 
-O frontend já está parcialmente funcional e integrado com o backend.
+O projeto encontra-se funcional a nível full-stack, com integração completa entre backend e frontend.
 
-Atualmente já permite:
+## Backend
 
-* Listar propriedades a partir da API (`GET /api/properties`)
-* Criar novas propriedades (`POST /api/properties`)
-* Atualizar automaticamente a interface após criação
-* Navegação entre páginas (React Router)
+* CRUD completo de propriedades
+* Criação e listagem de reservas
+* Validação automática de conflitos (reservas e bloqueios)
+* Gestão de bloqueios de datas
+* Sistema de verificação de disponibilidade
+* API documentada com Swagger
+* Base de dados PostgreSQL com migrations (Flyway)
 
-Funcionalidades em desenvolvimento:
+## Frontend
 
-* Gestão de reservas no frontend
-* Verificação de disponibilidade com UI
-* Edição e remoção de propriedades
-* Interface mais avançada (dashboard e calendário)
+* CRUD completo de propriedades (criar, editar, apagar)
+* Seleção de propriedades nas páginas
+* Criação de reservas através da interface
+* Listagem de reservas por propriedade
+* Verificação de disponibilidade
+* Navegação entre páginas com React Router
+
+## Em desenvolvimento
+
+* Melhorias de UI/UX
+* Calendário visual de reservas
+* Dashboard de ocupação
+* Gestão de bloqueios no frontend
 
 ---
 
@@ -308,8 +320,7 @@ frontend/src
 
 # Roadmap
 
-* Gestão completa de propriedades (edit/delete)
-* Gestão de reservas no frontend
+* Melhorias de UI/UX
 * Calendário visual de ocupação
 * Dashboard de métricas
 * Sistema de utilizadores
