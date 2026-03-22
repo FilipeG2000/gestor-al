@@ -1,132 +1,272 @@
 import { useEffect, useState } from "react";
 import { api } from "../lib/api";
-import type { BookingCreateRequest, BookingResponse, PropertyResponse } from "../types";
+import type {
+    BookingCreateRequest,
+    BookingResponse,
+    PropertyResponse,
+} from "../types";
 
 export default function BookingPage() {
     const [properties, setProperties] = useState<PropertyResponse[]>([]);
-    const [propertyId, setPropertyId] = useState<number | null>(null);
-
+    const [selectedPropertyId, setSelectedPropertyId] = useState<number | "">("");
     const [bookings, setBookings] = useState<BookingResponse[]>([]);
-    const [err, setErr] = useState<string | null>(null);
+    const [loadingProperties, setLoadingProperties] = useState(false);
+    const [loadingBookings, setLoadingBookings] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
-    const [form, setForm] = useState<Omit<BookingCreateRequest, "propertyId">>({
+    const [form, setForm] = useState<BookingCreateRequest>({
+        propertyId: 0,
         guestName: "",
         guestsCount: 2,
-        checkIn: "",
-        checkOut: "",
+        checkIn: "2026-03-01",
+        checkOut: "2026-03-05",
     });
 
-    async function loadProperties() {
-        const res = await api.get<PropertyResponse[]>("/api/properties");
-        setProperties(res.data);
-        if (res.data.length && propertyId == null) setPropertyId(res.data[0].id);
-    }
-
-    async function loadBookings(pid: number) {
-        const res = await api.get<BookingResponse[]>("/api/bookings", { params: { propertyId: pid } });
-        setBookings(res.data);
-    }
-
-    async function createBooking() {
-        if (!propertyId) return;
-        setErr(null);
-        try {
-            await api.post("/api/bookings", { propertyId, ...form });
-            setForm({ guestName: "", guestsCount: 2, checkIn: "", checkOut: "" });
-            await loadBookings(propertyId);
-        } catch (e: any) {
-            setErr(e?.response?.data?.message ?? e?.message ?? "Erro ao criar booking");
-        }
-    }
-
     useEffect(() => {
-        loadProperties();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+        void loadProperties();
     }, []);
 
     useEffect(() => {
-        if (propertyId) loadBookings(propertyId);
-    }, [propertyId]);
+        if (selectedPropertyId === "") {
+            setBookings([]);
+            return;
+        }
+
+        setForm((prev) => ({
+            ...prev,
+            propertyId: Number(selectedPropertyId),
+        }));
+
+        void loadBookings(Number(selectedPropertyId));
+    }, [selectedPropertyId]);
+
+    async function loadProperties() {
+        setLoadingProperties(true);
+        setError(null);
+
+        try {
+            const data = await api.getProperties();
+            setProperties(data);
+
+            if (data.length > 0) {
+                setSelectedPropertyId(data[0].id);
+            }
+        } catch (e: any) {
+            setError(formatApiError(e));
+        } finally {
+            setLoadingProperties(false);
+        }
+    }
+
+    async function loadBookings(propertyId: number) {
+        setLoadingBookings(true);
+        setError(null);
+
+        try {
+            const data = await api.getBookingsByProperty(propertyId);
+            setBookings(data);
+        } catch (e: any) {
+            setError(formatApiError(e));
+        } finally {
+            setLoadingBookings(false);
+        }
+    }
+
+    async function handleSubmit(e: React.FormEvent) {
+        e.preventDefault();
+
+        if (selectedPropertyId === "") return;
+
+        setSubmitting(true);
+        setError(null);
+
+        try {
+            await api.createBooking({
+                propertyId: Number(selectedPropertyId),
+                guestName: form.guestName,
+                guestsCount: Number(form.guestsCount),
+                checkIn: form.checkIn,
+                checkOut: form.checkOut,
+            });
+
+            setForm((prev) => ({
+                ...prev,
+                guestName: "",
+                guestsCount: 2,
+                checkIn: "2026-03-01",
+                checkOut: "2026-03-05",
+            }));
+
+            await loadBookings(Number(selectedPropertyId));
+        } catch (e: any) {
+            setError(formatApiError(e));
+        } finally {
+            setSubmitting(false);
+        }
+    }
 
     return (
         <div>
             <h2>Bookings</h2>
 
-            <label>
-                Property:
-                <select
-                    value={propertyId ?? ""}
-                    onChange={(e) => setPropertyId(Number(e.target.value))}
-                    style={{ marginLeft: 8 }}
-                >
-                    {properties.map((p) => (
-                        <option key={p.id} value={p.id}>
-                            #{p.id} — {p.name}
-                        </option>
-                    ))}
-                </select>
-            </label>
-
-            <div style={{ border: "1px solid #ddd", padding: 12, borderRadius: 8, marginTop: 12 }}>
-                <h3>Criar booking</h3>
-
-                <div style={{ display: "grid", gap: 8, gridTemplateColumns: "1fr 1fr" }}>
-                    <label>
-                        Guest name
-                        <input
-                            value={form.guestName}
-                            onChange={(e) => setForm({ ...form, guestName: e.target.value })}
-                            style={{ width: "100%" }}
-                        />
-                    </label>
-
-                    <label>
-                        Guests
-                        <input
-                            type="number"
-                            min={1}
-                            value={form.guestsCount}
-                            onChange={(e) => setForm({ ...form, guestsCount: Number(e.target.value) })}
-                            style={{ width: "100%" }}
-                        />
-                    </label>
-
-                    <label>
-                        Check-in (YYYY-MM-DD)
-                        <input
-                            value={form.checkIn}
-                            onChange={(e) => setForm({ ...form, checkIn: e.target.value })}
-                            placeholder="2026-03-01"
-                            style={{ width: "100%" }}
-                        />
-                    </label>
-
-                    <label>
-                        Check-out (YYYY-MM-DD)
-                        <input
-                            value={form.checkOut}
-                            onChange={(e) => setForm({ ...form, checkOut: e.target.value })}
-                            placeholder="2026-03-05"
-                            style={{ width: "100%" }}
-                        />
-                    </label>
+            {error && (
+                <div style={errorBoxStyle}>
+                    <strong>Erro:</strong> {error}
                 </div>
+            )}
 
-                <button onClick={createBooking} disabled={!propertyId || !form.guestName || !form.checkIn || !form.checkOut} style={{ marginTop: 12 }}>
-                    Criar booking
-                </button>
-
-                {err && <p style={{ color: "crimson" }}>{err}</p>}
+            <div style={{ marginBottom: 16 }}>
+                <label>
+                    Property:{" "}
+                    <select
+                        value={selectedPropertyId}
+                        onChange={(e) =>
+                            setSelectedPropertyId(
+                                e.target.value === "" ? "" : Number(e.target.value)
+                            )
+                        }
+                    >
+                        <option value="">Seleciona uma propriedade</option>
+                        {properties.map((property) => (
+                            <option key={property.id} value={property.id}>
+                                {property.name}
+                            </option>
+                        ))}
+                    </select>
+                </label>
             </div>
 
-            <h3 style={{ marginTop: 16 }}>Bookings da property</h3>
-            <ul>
-                {bookings.map((b) => (
-                    <li key={b.id}>
-                        #{b.id} — {b.guestName} ({b.guestsCount}) — {b.checkIn} → {b.checkOut} — {b.status}
-                    </li>
-                ))}
-            </ul>
+            {loadingProperties && <p>A carregar propriedades...</p>}
+
+            <section style={cardStyle}>
+                <h3>Criar booking</h3>
+
+                <form onSubmit={handleSubmit} style={{ display: "grid", gap: 12 }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                        <div>
+                            <label>Guest name</label>
+                            <input
+                                style={inputStyle}
+                                value={form.guestName}
+                                onChange={(e) =>
+                                    setForm((prev) => ({ ...prev, guestName: e.target.value }))
+                                }
+                            />
+                        </div>
+
+                        <div>
+                            <label>Guests</label>
+                            <input
+                                style={inputStyle}
+                                type="number"
+                                min={1}
+                                value={form.guestsCount}
+                                onChange={(e) =>
+                                    setForm((prev) => ({
+                                        ...prev,
+                                        guestsCount: Number(e.target.value),
+                                    }))
+                                }
+                            />
+                        </div>
+
+                        <div>
+                            <label>Check-in (YYYY-MM-DD)</label>
+                            <input
+                                style={inputStyle}
+                                value={form.checkIn}
+                                onChange={(e) =>
+                                    setForm((prev) => ({ ...prev, checkIn: e.target.value }))
+                                }
+                            />
+                        </div>
+
+                        <div>
+                            <label>Check-out (YYYY-MM-DD)</label>
+                            <input
+                                style={inputStyle}
+                                value={form.checkOut}
+                                onChange={(e) =>
+                                    setForm((prev) => ({ ...prev, checkOut: e.target.value }))
+                                }
+                            />
+                        </div>
+                    </div>
+
+                    <div>
+                        <button
+                            type="submit"
+                            disabled={selectedPropertyId === "" || submitting}
+                        >
+                            {submitting ? "A criar..." : "Criar booking"}
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <section style={{ marginTop: 24 }}>
+                <h3>Bookings da property</h3>
+
+                {selectedPropertyId === "" ? (
+                    <p>Seleciona uma propriedade.</p>
+                ) : loadingBookings ? (
+                    <p>A carregar bookings...</p>
+                ) : bookings.length === 0 ? (
+                    <p>Sem bookings para esta propriedade.</p>
+                ) : (
+                    <div style={{ display: "grid", gap: 12 }}>
+                        {bookings.map((booking) => (
+                            <div key={booking.id} style={cardStyle}>
+                                <p><strong>ID:</strong> {booking.id}</p>
+                                <p><strong>Guest:</strong> {booking.guestName}</p>
+                                <p><strong>Guests:</strong> {booking.guestsCount}</p>
+                                <p><strong>Check-in:</strong> {booking.checkIn}</p>
+                                <p><strong>Check-out:</strong> {booking.checkOut}</p>
+                                <p><strong>Status:</strong> {booking.status}</p>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </section>
         </div>
     );
+}
+
+const cardStyle: React.CSSProperties = {
+    border: "1px solid #ccc",
+    borderRadius: 12,
+    padding: 16,
+};
+
+const inputStyle: React.CSSProperties = {
+    width: "100%",
+    padding: "10px 12px",
+    marginTop: 4,
+    boxSizing: "border-box",
+};
+
+const errorBoxStyle: React.CSSProperties = {
+    marginTop: 12,
+    marginBottom: 12,
+    padding: 12,
+    border: "1px solid #f3c2c2",
+    background: "#fff5f5",
+    borderRadius: 8,
+    whiteSpace: "pre-wrap",
+};
+
+function formatApiError(error: any): string {
+    if (!error) return "Erro desconhecido.";
+    if (typeof error === "string") return error;
+
+    if (error.details) {
+        try {
+            return `${error.message}\n${JSON.stringify(error.details, null, 2)}`;
+        } catch {
+            return error.message ?? "Erro na API.";
+        }
+    }
+
+    return error.message ?? "Erro na API.";
 }

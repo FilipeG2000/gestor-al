@@ -1,4 +1,10 @@
-import type { PropertyCreateRequest, PropertyResponse } from "../types";
+import type {
+    BookingCreateRequest,
+    BookingResponse,
+    PropertyCreateRequest,
+    PropertyResponse,
+    AvailabilityResponse,
+} from "../types";
 
 const API_BASE_URL = "http://localhost:8080/api";
 
@@ -26,24 +32,18 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
         if (hasJson) {
             try {
                 details = await res.json();
-            } catch {
-                // ignore
-            }
+            } catch {}
         } else {
             try {
                 details = await res.text();
-            } catch {
-                // ignore
-            }
+            } catch {}
         }
 
-        const err: ApiError = {
+        throw {
             message: `API error ${res.status} (${res.statusText})`,
             status: res.status,
             details,
-        };
-
-        throw err;
+        } as ApiError;
     }
 
     if (!hasJson) {
@@ -61,4 +61,29 @@ export const api = {
             method: "POST",
             body: JSON.stringify(payload),
         }),
+
+    updateProperty: (id: number, payload: PropertyCreateRequest) =>
+        request<PropertyResponse>(`/properties/${id}`, {
+            method: "PUT",
+            body: JSON.stringify(payload),
+        }),
+
+    deleteProperty: (id: number) =>
+        request<void>(`/properties/${id}`, {
+            method: "DELETE",
+        }),
+
+    getBookingsByProperty: (propertyId: number) =>
+        request<BookingResponse[]>(`/bookings?propertyId=${propertyId}`),
+
+    createBooking: (payload: BookingCreateRequest) =>
+        request<BookingResponse>("/bookings", {
+            method: "POST",
+            body: JSON.stringify(payload),
+        }),
+
+    checkAvailability: (propertyId: number, from: string, to: string) =>
+        request<AvailabilityResponse>(
+            `/availability?propertyId=${propertyId}&from=${from}&to=${to}`
+        ),
 };

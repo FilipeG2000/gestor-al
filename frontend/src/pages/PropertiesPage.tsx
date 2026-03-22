@@ -11,6 +11,7 @@ export default function PropertiesPage() {
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<number | null>(null);
 
   const [form, setForm] = useState<PropertyCreateRequest>({
     name: "",
@@ -46,6 +47,49 @@ export default function PropertiesPage() {
     void loadProperties();
   }, []);
 
+  function resetForm() {
+    setForm({
+      name: "",
+      timezone: DEFAULT_TIMEZONE,
+      checkInTime: DEFAULT_CHECKIN,
+      checkOutTime: DEFAULT_CHECKOUT,
+    });
+    setEditingId(null);
+  }
+
+  function handleEdit(property: PropertyResponse) {
+    setEditingId(property.id);
+    setError(null);
+
+    setForm({
+      name: property.name,
+      timezone: property.timezone,
+      checkInTime: property.checkInTime,
+      checkOutTime: property.checkOutTime,
+    });
+  }
+
+  async function handleDelete(id: number) {
+    const confirmed = window.confirm(
+        "Tens a certeza que queres apagar esta propriedade?"
+    );
+
+    if (!confirmed) return;
+
+    setError(null);
+
+    try {
+      await api.deleteProperty(id);
+      setItems((prev) => prev.filter((property) => property.id !== id));
+
+      if (editingId === id) {
+        resetForm();
+      }
+    } catch (e: any) {
+      setError(formatApiError(e));
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
@@ -55,21 +99,31 @@ export default function PropertiesPage() {
     setError(null);
 
     try {
-      const created = await api.createProperty({
-        name: form.name.trim(),
-        timezone: form.timezone?.trim(),
-        checkInTime: form.checkInTime,
-        checkOutTime: form.checkOutTime,
-      });
+      if (editingId !== null) {
+        const updated = await api.updateProperty(editingId, {
+          name: form.name.trim(),
+          timezone: form.timezone?.trim(),
+          checkInTime: form.checkInTime,
+          checkOutTime: form.checkOutTime,
+        });
 
-      setItems((prev) => [created, ...prev]);
+        setItems((prev) =>
+            prev.map((property) =>
+                property.id === editingId ? updated : property
+            )
+        );
+      } else {
+        const created = await api.createProperty({
+          name: form.name.trim(),
+          timezone: form.timezone?.trim(),
+          checkInTime: form.checkInTime,
+          checkOutTime: form.checkOutTime,
+        });
 
-      setForm({
-        name: "",
-        timezone: DEFAULT_TIMEZONE,
-        checkInTime: DEFAULT_CHECKIN,
-        checkOutTime: DEFAULT_CHECKOUT,
-      });
+        setItems((prev) => [created, ...prev]);
+      }
+
+      resetForm();
     } catch (e: any) {
       setError(formatApiError(e));
     } finally {
@@ -114,7 +168,9 @@ export default function PropertiesPage() {
               borderRadius: 12,
             }}
         >
-          <h2 style={{ marginTop: 0 }}>Criar nova propriedade</h2>
+          <h2 style={{ marginTop: 0 }}>
+            {editingId !== null ? "Editar propriedade" : "Criar nova propriedade"}
+          </h2>
 
           <form
               onSubmit={handleSubmit}
@@ -176,22 +232,21 @@ export default function PropertiesPage() {
 
             <div style={{ gridColumn: "1 / -1", display: "flex", gap: 12 }}>
               <button type="submit" disabled={!canSubmit || submitting}>
-                {submitting ? "A criar..." : "Criar"}
+                {submitting
+                    ? editingId !== null
+                        ? "A atualizar..."
+                        : "A criar..."
+                    : editingId !== null
+                        ? "Atualizar"
+                        : "Criar"}
               </button>
 
               <button
                   type="button"
-                  onClick={() =>
-                      setForm({
-                        name: "",
-                        timezone: DEFAULT_TIMEZONE,
-                        checkInTime: DEFAULT_CHECKIN,
-                        checkOutTime: DEFAULT_CHECKOUT,
-                      })
-                  }
+                  onClick={resetForm}
                   disabled={submitting}
               >
-                Limpar
+                {editingId !== null ? "Cancelar" : "Limpar"}
               </button>
             </div>
           </form>
@@ -216,6 +271,7 @@ export default function PropertiesPage() {
                         }}
                     >
                       <h3 style={{ margin: "0 0 8px 0" }}>{property.name}</h3>
+
                       <p style={{ margin: 0 }}>
                         <strong>ID:</strong> {property.id}
                       </p>
@@ -228,6 +284,14 @@ export default function PropertiesPage() {
                       <p style={{ margin: 0 }}>
                         <strong>Check-out:</strong> {property.checkOutTime}
                       </p>
+
+                      <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+                        <button onClick={() => handleEdit(property)}>Editar</button>
+
+                        <button onClick={() => handleDelete(property.id)}>
+                          Apagar
+                        </button>
+                      </div>
                     </div>
                 ))}
               </div>
